@@ -16,7 +16,7 @@ Summary
 
 The primary use of the library is to easily interface with a MAX31855 chip via the SPI interface.  Use the following code to initialize the library.
 
-	MAX31855 temp(SCK,SO,CS);
+	MAX31855 temp(SCK,CS,SO);
 	
 Variables:	
 
