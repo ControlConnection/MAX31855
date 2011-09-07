@@ -25,6 +25,12 @@ Variables:
 *	SCK is the clock pin of the chip
 
 
+Hardware
+--------
+
+There are many places you can find MAX31855 interface boards, or you can integrate it into your own design.  If you are looking for a breakout, you can check out [ryanjmclaughlin.com](http://ryanjmclaughlin.com). 
+
+
 TODO
 ----
 
