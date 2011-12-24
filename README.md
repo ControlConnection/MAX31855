@@ -10,6 +10,18 @@ Developed By:
 *   Alec N., Control Connection
 *	Ryan McLaughlin <ryan@ryanjmclaughlin.com>
 
+Versions
+--------
+
+###v1.0.0.beta
+
+TBD
+
+
+###v0.5.0
+
+Initial release.  For use with pre-1.0 Arduino software only.
+
 
 Summary
 -------

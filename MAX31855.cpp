@@ -5,29 +5,26 @@
   http://creativecommons.org/licenses/by-sa/3.0/
 */
 
-#include <avr/pgmspace.h>
-#include <WProgram.h>
-#include <stdlib.h>
-
+#include <Arduino.h>
 #include "MAX31855.h"
 
-MAX31855::MAX31855(int8_t SCLK, int8_t CS, int8_t MISO) {
-  sclk = SCLK;
-  cs = CS;
-  miso = MISO;
+MAX31855::MAX31855(int SCK_pin, int CS_pin, int SO_pin, bool temp_unit) {
+  _sck_pin = SCK_pin;
+  _cs_pin = CS_pin;
+  _so_pin = SO_pin;
+  _temp_unit = temp_unit;
 
   //define pin modes
-  pinMode(cs, OUTPUT);
-  pinMode(sclk, OUTPUT); 
-  pinMode(miso, INPUT);
+  pinMode(_cs_pin, OUTPUT);
+  pinMode(_sck_pin, OUTPUT); 
+  pinMode(_so_pin, INPUT);
 
-  digitalWrite(cs, HIGH);
+  digitalWrite(_cs_pin, HIGH);
 }
 
+
 double MAX31855::readCelsius(void) {
-
-  int16_t v;
-
+  long v;
   v = spiread16();
    //if fault bit set // return 2000deg
   if (v & 0x1) 
@@ -36,74 +33,80 @@ double MAX31855::readCelsius(void) {
   return v / 16.0;
 }
 
-double MAX31855::readFarenheit(void) {
+
+double MAX31855::readFahrenheit(void) {
  	return readCelsius() * 9.0/5.0 + 32;
 }
-double MAX31855::readCJC(void) {
 
-  int16_t v;
+
+double MAX31855::readCJC(void) {
+  long v;
   v = spiread32() & 0xfff0;
   return v / 256.0;
 }
 
-uint8_t MAX31855::readFaultCode(void) {
 
-return (spiread32() & 0x7) ; // return low 3 bits   
-  	
+int MAX31855::readFaultCode(void) {
+	return (spiread32() & 0x7) ; // return low 3 bits   	
 }
-uint32_t MAX31855::spiread32(void) { 
+
+
+long MAX31855::spiread32(void) { 
   int i;
-  uint16_t d = 0; // we only need last 16 bits, first 16 will be discarded
-   digitalWrite(cs, LOW);
+  long d = 0; // we only need last 16 bits, first 16 will be discarded
+   digitalWrite(_cs_pin, LOW);
   for (i=31; i>=0; i--)
 	  {
-		digitalWrite(sclk, LOW);
-		if (digitalRead(miso))   
+		digitalWrite(_sck_pin, LOW);
+		if (digitalRead(_so_pin))   
 			d |= (1 << i);
-		digitalWrite(sclk, HIGH);
+		digitalWrite(_sck_pin, HIGH);
 	  }
-	digitalWrite(cs, HIGH);
+	digitalWrite(_cs_pin, HIGH);
 
   return d; 
 }
-uint16_t MAX31855::spiread16(void) { 
+
+
+long MAX31855::spiread16(void) { 
   int i;
-  uint16_t d = 0;
-  digitalWrite(cs, LOW);
+  long d = 0;
+  digitalWrite(_cs_pin, LOW);
   for (i=15; i>=0; i--)
   {
-	digitalWrite(sclk, LOW);
-	if (digitalRead(miso))
+	digitalWrite(_sck_pin, LOW);
+	if (digitalRead(_so_pin))
 		d |= (1 << i);
-	digitalWrite(sclk, HIGH);
+	digitalWrite(_sck_pin, HIGH);
   }
-  digitalWrite(cs, HIGH);
+  digitalWrite(_cs_pin, HIGH);
 
   return d; 
 }
+
 
 bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC){
 	int i;
-	int16_t d = 0;
-	int16_t v = 0;
+	long d = 0;
+	long v = 0;
 	bool fault = false;
 
-	digitalWrite(cs, LOW);
+	digitalWrite(_cs_pin, LOW);
 	for (i=15; i>=0; i--)
 		{
-		digitalWrite(sclk, LOW);
-		if (digitalRead(miso))
+		digitalWrite(_sck_pin, LOW);
+		if (digitalRead(_so_pin))
 			d |= (1 << i);
-		digitalWrite(sclk, HIGH);
+		digitalWrite(_sck_pin, HIGH);
 		}
 	for (i=15; i>=0; i--)
 		{
-		digitalWrite(sclk, LOW);
-		if (digitalRead(miso))
+		digitalWrite(_sck_pin, LOW);
+		if (digitalRead(_so_pin))
 			v |= (1 << i);
-		digitalWrite(sclk, HIGH);
+		digitalWrite(_sck_pin, HIGH);
 		}
-	digitalWrite(cs, HIGH);
+	digitalWrite(_cs_pin, HIGH);
 	
 	if (d & 0x1)
 	{
@@ -112,8 +115,11 @@ bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bo
 	} 
 	else
 	{
-		 d&=0xfffc; // mask lower two bits
-		 *tempTC = d / 16.0;
+		d&=0xfffc; // mask lower two bits
+		*tempTC = d / 16.0;
+		if(_temp_unit == 1) {
+			*tempTC = *tempTC * 9.0/5.0 + 32;
+		}
 	}
 	
 	*faultOpen = (v & 0x1) ? true : false  ;
@@ -121,7 +127,10 @@ bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bo
 	*faultShortVCC = ((v>>2) & 0x1) ? true : false;
 
 	v = v & 0xfff0;// mask lower 4 bits
-    *tempCJC = v / 256.0;
+	*tempCJC = v / 256.0;
+	if(_temp_unit == 1) {
+		*tempCJC = *tempCJC * 9.0/5.0 + 32;
+	}
 
 	return fault;
 }

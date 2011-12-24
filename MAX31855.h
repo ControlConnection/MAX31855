@@ -5,18 +5,19 @@
   http://creativecommons.org/licenses/by-sa/3.0/
 */
 
-#include <WProgram.h>
+#include <Arduino.h>
 
 class MAX31855 {
  public:
-  MAX31855(int8_t SCLK, int8_t CS, int8_t MISO);
+  MAX31855(int SCK_pin, int CS_pin, int SO_pin, bool temp_unit);
   bool readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC);
   double readCelsius(void);
-  double readFarenheit(void);
+  double readFahrenheit(void);
   double readCJC(void);
-  uint8_t readFaultCode(void);
+  int readFaultCode(void);
  private:
-  int8_t sclk, miso, cs;
-  uint32_t spiread32(void);
-  uint16_t spiread16(void);
+  int _sck_pin, _cs_pin, _so_pin;
+  bool _temp_unit;
+  long spiread32(void);
+  long spiread16(void);
 };
