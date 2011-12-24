@@ -13,14 +13,19 @@ Developed By:
 Versions
 --------
 
-###v1.0.0.beta
+###v1.0.0.beta1
 
-TBD
+* Some math errors fixed that rounded numbers where they should not have been.  This caused issues when temperatures were displaying wrong.  
+* Fixed misspelling of readFahrenheit().
+* Updated calls and variable names to make them easier to understand and flow Arduino format.
+* Added unit setting.
+* Fixed compile issues for Arduino v1.0.  
+* Tested code on Uno R3 with Single Shield.
 
 
 ###v0.5.0
 
-Initial release.  For use with pre-1.0 Arduino software only.
+* Initial release.  For use with pre-1.0 Arduino software only.
 
 
 Summary
@@ -61,7 +66,7 @@ Functions
 ### readCelsius
 	double readCelsius(void);
 ### readFarenheit
-	double readFarenheit(void);
+	double readFahrenheit(void);
 ### readCJC
 	double readCJC(void);
 ### readFaultCode
