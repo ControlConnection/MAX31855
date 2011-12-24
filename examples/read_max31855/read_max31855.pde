@@ -13,8 +13,12 @@
 
 double tempTC, tempCJC;
 bool faultOpen, faultShortGND, faultShortVCC, x;
+int SCK_pin = 13;
+int SO_pin = 12;
+int CS_pin = 10;
+bool temp_unit = 1;  // 0 = Celsius, 1 = Fahrenheit
 
-MAX31855 temp(13, 10, 12);
+MAX31855 temp(SCK_pin, CS_pin, SO_pin, temp_unit);
 
 void setup() {
   Serial.begin(9600);
