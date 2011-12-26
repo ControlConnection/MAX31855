@@ -5,14 +5,12 @@
   http://creativecommons.org/licenses/by-sa/3.0/
 */
 
-#include <Arduino.h>
 #include "MAX31855.h"
 
-MAX31855::MAX31855(int SCK_pin, int CS_pin, int SO_pin, bool temp_unit) {
+MAX31855::MAX31855(int SCK_pin, int CS_pin, int SO_pin) {
   _sck_pin = SCK_pin;
   _cs_pin = CS_pin;
   _so_pin = SO_pin;
-  _temp_unit = temp_unit;
 
   //define pin modes
   pinMode(_cs_pin, OUTPUT);
@@ -85,7 +83,7 @@ long MAX31855::spiread16(void) {
 }
 
 
-bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC){
+bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC, bool temp_unit){
 	int i;
 	long d = 0;
 	long v = 0;
@@ -117,7 +115,7 @@ bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bo
 	{
 		d&=0xfffc; // mask lower two bits
 		*tempTC = d / 16.0;
-		if(_temp_unit == 1) {
+		if(temp_unit == 1) {
 			*tempTC = *tempTC * 9.0/5.0 + 32;
 		}
 	}
@@ -128,7 +126,7 @@ bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bo
 
 	v = v & 0xfff0;// mask lower 4 bits
 	*tempCJC = v / 256.0;
-	if(_temp_unit == 1) {
+	if(temp_unit == 1) {
 		*tempCJC = *tempCJC * 9.0/5.0 + 32;
 	}
 

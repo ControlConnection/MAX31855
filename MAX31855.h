@@ -5,19 +5,22 @@
   http://creativecommons.org/licenses/by-sa/3.0/
 */
 
-#include <Arduino.h>
+#if ARDUINO >= 100
+ #include "Arduino.h"
+#else
+ #include "WProgram.h"
+#endif
 
 class MAX31855 {
  public:
-  MAX31855(int SCK_pin, int CS_pin, int SO_pin, bool temp_unit);
-  bool readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC);
+  MAX31855(int SCK_pin, int CS_pin, int SO_pin);
+  bool readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC, bool temp_unit);
   double readCelsius(void);
   double readFahrenheit(void);
   double readCJC(void);
   int readFaultCode(void);
  private:
   int _sck_pin, _cs_pin, _so_pin;
-  bool _temp_unit;
   long spiread32(void);
   long spiread16(void);
 };

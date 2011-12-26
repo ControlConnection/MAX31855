@@ -13,6 +13,13 @@ Developed By:
 Versions
 --------
 
+###v1.0.0.beta2
+
+* Updated example with new Arduino 1.0 file extension
+* Added the blinking LED to the Examples
+* Added a temperature unit to the readMAX31855() function
+* Debugged both examples using MAX31855 Arduino shields on a Uno R3
+
 ###v1.0.0.beta1
 
 * Some math errors fixed that rounded numbers where they should not have been.  This caused issues when temperatures were displaying wrong.  

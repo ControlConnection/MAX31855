@@ -1,5 +1,5 @@
 /*
-  read_MAX31855.pde - Demo of library usage.
+  read_MAX31855.ino
 
   TODO: 
 	Clean up code and comment!!  
@@ -11,21 +11,29 @@
 
 #include <MAX31855.h>
 
+// Adruino 1.0 pre-defines these variables
+#if ARDUINO < 100
+int SCK = 13;
+int MISO = 12;
+int SS = 10;
+#endif
+int LED = 9;
+
+// Setup the variables we are going to use.
 double tempTC, tempCJC;
 bool faultOpen, faultShortGND, faultShortVCC, x;
-int SCK_pin = 13;
-int SO_pin = 12;
-int CS_pin = 10;
 bool temp_unit = 1;  // 0 = Celsius, 1 = Fahrenheit
 
-MAX31855 temp(SCK_pin, CS_pin, SO_pin, temp_unit);
+// Init the MAX31855 library for the chip.
+MAX31855 temp(SCK, SS, MISO);
 
 void setup() {
   Serial.begin(9600);
+  pinMode(LED, OUTPUT);
 }
 
 void loop() {
-  x = temp.readMAX31855(&tempTC, &tempCJC, &faultOpen, &faultShortGND, &faultShortVCC);
+  x = temp.readMAX31855(&tempTC, &tempCJC, &faultOpen, &faultShortGND, &faultShortVCC, temp_unit);
   
     Serial.print(tempTC);
     Serial.print("\t");
@@ -35,5 +43,8 @@ void loop() {
     Serial.print(faultShortGND);
     Serial.println(faultShortVCC); 
   
-  delay(1000);
+  digitalWrite(LED, HIGH);
+  delay(500);
+  digitalWrite(LED, LOW);
+  delay(500);
 }
