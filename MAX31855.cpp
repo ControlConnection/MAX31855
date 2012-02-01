@@ -103,7 +103,6 @@ int MAX31855::spiread16(void) {
 
 
 bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC, bool temp_unit){
-	int i;
 	int tc = 0;
 	int cjc = 0;
 	bool fault = false;
