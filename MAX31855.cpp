@@ -16,7 +16,6 @@ MAX31855::MAX31855(int SCK_pin, int CS_pin, int SO_pin) {
   pinMode(_cs_pin, OUTPUT);
   pinMode(_sck_pin, OUTPUT); 
   pinMode(_so_pin, INPUT);
-
   digitalWrite(_cs_pin, HIGH);
 }
 
@@ -62,7 +61,6 @@ long MAX31855::spiread32(void) {
 		digitalWrite(_sck_pin, HIGH);
 	  }
 	digitalWrite(_cs_pin, HIGH);
-
   return d; 
 }
 
@@ -111,11 +109,6 @@ bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bo
 	bool fault = false;
     
     spiread32(&tc, &cjc);
-	
-/*	Serial.print("V = ");
-    Serial.print(v>>4,BIN);
-    Serial.print(", D = ");
-    Serial.println(d>>2,BIN); */
 	
 	if (tc & 0x1)
 	{
