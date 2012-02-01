@@ -22,5 +22,6 @@ class MAX31855 {
  private:
   int _sck_pin, _cs_pin, _so_pin;
   long spiread32(void);
-  long spiread16(void);
+  int spiread16(void);
+  void spiread32(int *tc, int *cjc);
 };
