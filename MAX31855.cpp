@@ -16,13 +16,12 @@ MAX31855::MAX31855(int SCK_pin, int CS_pin, int SO_pin) {
   pinMode(_cs_pin, OUTPUT);
   pinMode(_sck_pin, OUTPUT); 
   pinMode(_so_pin, INPUT);
-
   digitalWrite(_cs_pin, HIGH);
 }
 
 
 double MAX31855::readCelsius(void) {
-  long v;
+  int v;
   v = spiread16();
    //if fault bit set // return 2000deg
   if (v & 0x1) 
@@ -38,10 +37,11 @@ double MAX31855::readFahrenheit(void) {
 
 
 double MAX31855::readCJC(void) {
-  long v;
-  v = spiread32() & 0xfff0;
-  return v / 256.0;
+  int tc, cjc;
+  spiread32(&tc, &cjc);
+  return (cjc & 0xfff0)  / 256.0;
 }
+
 
 
 int MAX31855::readFaultCode(void) {
@@ -61,14 +61,33 @@ long MAX31855::spiread32(void) {
 		digitalWrite(_sck_pin, HIGH);
 	  }
 	digitalWrite(_cs_pin, HIGH);
-
   return d; 
 }
 
-
-long MAX31855::spiread16(void) { 
+void MAX31855::spiread32(int *tc, int *cjc) { 
   int i;
-  long d = 0;
+  *tc = *cjc =  0;
+	digitalWrite(_cs_pin, LOW);
+	for (i=15; i>=0; i--)
+		{
+		digitalWrite(_sck_pin, LOW);
+		if (digitalRead(_so_pin))
+			*tc |= (1 << i);
+		digitalWrite(_sck_pin, HIGH);
+		}
+	for (i=15; i>=0; i--)
+		{
+		digitalWrite(_sck_pin, LOW);
+		if (digitalRead(_so_pin))
+			*cjc |= (1 << i);
+		digitalWrite(_sck_pin, HIGH);
+		}
+	digitalWrite(_cs_pin, HIGH);
+}
+
+int MAX31855::spiread16(void) { 
+  int i;
+  int d = 0;
   digitalWrite(_cs_pin, LOW);
   for (i=15; i>=0; i--)
   {
@@ -84,48 +103,31 @@ long MAX31855::spiread16(void) {
 
 
 bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bool *faultShortGND, bool *faultShortVCC, bool temp_unit){
-	int i;
-	long d = 0;
-	long v = 0;
+	int tc = 0;
+	int cjc = 0;
 	bool fault = false;
-
-	digitalWrite(_cs_pin, LOW);
-	for (i=15; i>=0; i--)
-		{
-		digitalWrite(_sck_pin, LOW);
-		if (digitalRead(_so_pin))
-			d |= (1 << i);
-		digitalWrite(_sck_pin, HIGH);
-		}
-	for (i=15; i>=0; i--)
-		{
-		digitalWrite(_sck_pin, LOW);
-		if (digitalRead(_so_pin))
-			v |= (1 << i);
-		digitalWrite(_sck_pin, HIGH);
-		}
-	digitalWrite(_cs_pin, HIGH);
+    
+    spiread32(&tc, &cjc);
 	
-	if (d & 0x1)
+	if (tc & 0x1)
 	{
 		fault=true;
 		*tempTC =9999;
 	} 
 	else
 	{
-		d&=0xfffc; // mask lower two bits
-		*tempTC = d / 16.0;
+		tc&=0xfffc; // mask lower two bits
+		*tempTC = tc / 16.0; 
 		if(temp_unit == 1) {
 			*tempTC = *tempTC * 9.0/5.0 + 32;
 		}
 	}
 	
-	*faultOpen = (v & 0x1) ? true : false  ;
-	*faultShortGND = ((v>>1) & 0x1) ? true : false;
-	*faultShortVCC = ((v>>2) & 0x1) ? true : false;
-
-	v = v & 0xfff0;// mask lower 4 bits
-	*tempCJC = v / 256.0;
+	*faultOpen = (cjc & 0x1) ? true : false  ;
+	*faultShortGND = ((cjc>>1) & 0x1) ? true : false;
+	*faultShortVCC = ((cjc>>2) & 0x1) ? true : false;
+	cjc = cjc & 0xfff0;// mask lower 4 bits
+	*tempCJC = cjc / 256.0;
 	if(temp_unit == 1) {
 		*tempCJC = *tempCJC * 9.0/5.0 + 32;
 	}
