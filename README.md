@@ -9,9 +9,14 @@ Developed By:
 
 *   Alec N., Control Connection
 *	Ryan McLaughlin <ryan@ryanjmclaughlin.com>
+*	Yves Touchette (Code fixes, thanks!)
 
 Versions
 --------
+
+###v1.0.0
+* fixed negative output values 
+* fixed variable type issues
 
 ###v1.0.0.beta2
 
