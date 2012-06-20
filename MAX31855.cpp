@@ -24,8 +24,11 @@ double MAX31855::readCelsius(void) {
         int v;
         v = spiread16();
         //if fault bit set // return 2000deg
-        if (v & 0x1)
+
+        if (v & 0x1) {
                 return 2000;
+        }
+
         v&=0xfffc; // mask lower two bits
         return v / 16.0;
 }
@@ -53,13 +56,14 @@ long MAX31855::spiread32(void) {
         int i;
         long d = 0; // we only need last 16 bits, first 16 will be discarded
         digitalWrite(_cs_pin, LOW);
-        for (i=31; i>=0; i--)
-        {
+
+        for (i=31; i>=0; i--) {
                 digitalWrite(_sck_pin, LOW);
                 if (digitalRead(_so_pin))
                         d |= (1 << i);
                 digitalWrite(_sck_pin, HIGH);
         }
+
         digitalWrite(_cs_pin, HIGH);
         return d;
 }
@@ -68,20 +72,27 @@ void MAX31855::spiread32(int *tc, int *cjc) {
         int i;
         *tc = *cjc =  0;
         digitalWrite(_cs_pin, LOW);
-        for (i=15; i>=0; i--)
-        {
+
+        for (i=15; i>=0; i--) {
                 digitalWrite(_sck_pin, LOW);
-                if (digitalRead(_so_pin))
+
+                if (digitalRead(_so_pin)) {
                         *tc |= (1 << i);
+                }
+
                 digitalWrite(_sck_pin, HIGH);
         }
-        for (i=15; i>=0; i--)
-        {
+
+        for (i=15; i>=0; i--) {
                 digitalWrite(_sck_pin, LOW);
-                if (digitalRead(_so_pin))
+
+                if (digitalRead(_so_pin)) {
                         *cjc |= (1 << i);
+                }
+
                 digitalWrite(_sck_pin, HIGH);
         }
+
         digitalWrite(_cs_pin, HIGH);
 }
 
@@ -89,13 +100,17 @@ int MAX31855::spiread16(void) {
         int i;
         int d = 0;
         digitalWrite(_cs_pin, LOW);
-        for (i=15; i>=0; i--)
-        {
+
+        for (i=15; i>=0; i--) {
                 digitalWrite(_sck_pin, LOW);
-                if (digitalRead(_so_pin))
+
+                if (digitalRead(_so_pin)) {
                         d |= (1 << i);
+                }
+
                 digitalWrite(_sck_pin, HIGH);
         }
+
         digitalWrite(_cs_pin, HIGH);
 
         return d;
@@ -109,15 +124,13 @@ bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bo
 
         spiread32(&tc, &cjc);
 
-        if (tc & 0x1)
-        {
+        if (tc & 0x1) {
                 fault=true;
                 *tempTC =9999;
-        }
-        else
-        {
+        } else {
                 tc&=0xfffc; // mask lower two bits
                 *tempTC = tc / 16.0;
+
                 if(temp_unit == 1) {
                         *tempTC = *tempTC * 9.0/5.0 + 32;
                 }
@@ -128,6 +141,7 @@ bool MAX31855::readMAX31855(double *tempTC, double *tempCJC, bool *faultOpen, bo
         *faultShortVCC = ((cjc>>2) & 0x1) ? true : false;
         cjc = cjc & 0xfff0;// mask lower 4 bits
         *tempCJC = cjc / 256.0;
+
         if(temp_unit == 1) {
                 *tempCJC = *tempCJC * 9.0/5.0 + 32;
         }
