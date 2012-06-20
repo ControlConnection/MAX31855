@@ -10,6 +10,7 @@ Developed By:
 *   Alec N., Control Connection
 *	Ryan McLaughlin <ryan@ryanjmclaughlin.com>
 *	Yves Touchette (Code fixes, thanks!)
+*	John Howe and Fred Cooke (formatting and clarity fixes)
 
 Versions
 --------
